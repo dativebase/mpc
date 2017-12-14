@@ -1,0 +1,40 @@
+{:up   ["CREATE TABLE phonology (
+           id UUID,
+           script TEXT,
+           compiled_script VARCHAR(500),
+           PRIMARY KEY (id)
+         );
+         CREATE TABLE morphology (
+           id UUID,
+           corpus TEXT,
+           script_format VARCHAR(10),
+           script TEXT,
+           compiled_script VARCHAR(500),
+           PRIMARY KEY (id)
+         );
+         CREATE TABLE morphophonology (
+           id UUID,
+           script TEXT,
+           morphology_id UUID REFERENCES morphology (id),
+           phonology_id UUID REFERENCES phonology (id),
+           compiled_script VARCHAR(500),
+           PRIMARY KEY (id)
+         );
+         CREATE TABLE candidate_ranker (
+           id UUID,
+           corpus TEXT,
+           arpa TEXT,
+           language_model VARCHAR(500),
+           PRIMARY KEY (id)
+         );
+         CREATE TABLE morphological_parser (
+           id UUID,
+           morphophonology_id UUID REFERENCES morphophonology (id),
+           candidate_ranker_id UUID REFERENCES candidate_ranker (id),
+           PRIMARY KEY (id)
+         );"]
+ :down ["DROP TABLE morphological_parser;
+         DROP TABLE candidate_ranker;
+         DROP TABLE morphophonology;
+         DROP TABLE phonology;
+         DROP TABLE morphology;"]}

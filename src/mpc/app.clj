@@ -24,7 +24,7 @@
 ; requests/responses will be "filtered" through our logging handler.
 (def app
   (-> app-routes
-    wrap-log-request
+    ;wrap-log-request
     wrap-json-response
     wrap-json-body
     ))

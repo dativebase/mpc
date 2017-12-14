@@ -1,8 +1,12 @@
-(ns mpc.model)
+(ns mpc.entities)
+
+;(defn uuid [] (str (java.util.UUID/randomUUID)))
+(defn uuid [] (java.util.UUID/randomUUID))
 
 ;; A `Phonology` is a compiled foma FST as well as the (user-supplied) foma
 ;; script used to generate it.
-(defrecord Phonology [;; The `script` is a user-supplied string representing a
+(defrecord Phonology [id
+                      ;; The `script` is a user-supplied string representing a
                       ;; regex foma script.
                       script
                       ;; The `compiled-script` is `script` compiled to a binary
@@ -10,11 +14,12 @@
                       compiled-script])
 
 (defn new-phonology []
-  (->Phonology "" nil))
+  (->Phonology (uuid) "" ""))
 
 ;; A `Morpphology` is a compiled foma FST as well as the word corpus, foma
 ;; script, and other parameters needed to generate it.
-(defrecord Morphology [;; The `corpus` is a vector of linguistic forms, which
+(defrecord Morphology [id
+                       ;; The `corpus` is a vector of linguistic forms, which
                        ;; should contain morphologically analyzed words that we
                        ;; can extract syntactic category string patterns from,
                        ;; in order to build the `script`.
@@ -31,12 +36,13 @@
                        compiled-script])
 
 (defn new-morphology []
-  (->Morphology [] "lexc" "" nil))
+  (->Morphology [] "lexc" "" ""))
 
 ;; A `Morphophonology` is a foma script, its compiled foma FST, and the
 ;; morphology and phonology whose scripts are concatenated in order to build
 ;; the morphophonology's script.
-(defrecord Morphophonology [^Morphology morphology
+(defrecord Morphophonology [id
+                            ^Morphology morphology
                             ^Phonology phonology
                             ;; The `script` is a foma script that is essentially
                             ;; a concatenation of the scripts of the
@@ -47,12 +53,13 @@
                             compiled-script])
 
 (defn new-morphophonology []
-  (->Morphophonology (new-morphology) (new-phonology) "" nil))
+  (->Morphophonology (new-morphology) (new-phonology) "" ""))
 
 ;; A `CandidateRanker` is a data structure that can be used to rank a set of
 ;; candidate parses according to their probabilities.
 (defrecord CandidateRanker
-  [;; The `corpus` is a vector of linguistics forms which should contain
+  [id
+   ;; The `corpus` is a vector of linguistics forms which should contain
    ;; morphologically analyzed words from which we can build a morpheme
    ;; language model.
    corpus
@@ -65,13 +72,34 @@
    language-model])
 
 (defn new-candidate-ranker []
-  (->CandidateRanker [] "" nil))
+  (->CandidateRanker [] "" ""))
 
 ;; A `MorphologicalParser` is a data structure that encodes how to parse words
 ;; into their morphemes and how to generate surface representations of morpheme
 ;; sequences.
-(defrecord MorphologicalParser [^Morphophonology morphophonology
+(defrecord MorphologicalParser [id
+                                ^Morphophonology morphophonology
                                 ^CandidateRanker candidate-ranker])
 
 (defn new-morphological-parser []
   (->MorphologicalParser (new-morphophonology) (new-candidate-ranker)))
+
+(def entities
+  {:phonology map->Phonology
+   :morphology map->Morphology
+   :morphophonology map->Morphophonology
+   :candidate-ranker map->CandidateRanker
+   :morphological-parser map->MorphologicalParser})
+
+(defn make-entity [entity-kw entity-map]
+  (let [map->constructor (entity-kw entities)
+        id (:id entity-map)]
+    (if id
+      (map->constructor entity-map)
+      (map->constructor (assoc entity-map :id (uuid))))))
+
+(def make-phonology (partial make-entity :phonology))
+(def make-morphology (partial make-entity :morphology))
+(def make-morphophonology (partial make-entity :morphophonology))
+(def make-candidate-ranker (partial make-entity :candidate-ranker))
+(def make-morphological-parser (partial make-entity :morphological-parser))

@@ -17,12 +17,10 @@
 (def system nil)
 
 (defn init []
-  (println "in init")
   (alter-var-root #'system
                   (constantly (make-system {:port 9007}))))
 
 (defn start []
-  (println "in start")
   (alter-var-root #'system component/start))
 
 (defn stop []
@@ -30,12 +28,8 @@
                   (fn [s] (when s (component/stop s)))))
 
 (defn go []
-  (println "in go")
   (init)
-  (println "done init")
-  (start)
-  (println "done start")
-  )
+  (start))
 
 (defn reset []
   (stop)

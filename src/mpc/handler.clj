@@ -1,6 +1,6 @@
 (ns mpc.handler
   (:require
-   [mpc.model]
+   [mpc.entities]
    [compojure.route :as route]
    [compojure.core :refer [defroutes GET]]
    [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
