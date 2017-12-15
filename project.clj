@@ -1,8 +1,9 @@
 (defproject mpc "0.1.0-SNAPSHOT"
   :description "MPC is the Morphological Parser Creator, an application that
                allows users to build morphological parsers for natural
-               languages using finite state transducer (FST) technology and
-               N-gram language models."
+               languages using finite state transducer (FST) technology (foma)
+               and N-gram language models (MITLM). Part of the OLD (Online
+               Linguistic Database) project"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -34,7 +35,7 @@
                           :repl-port 8001}
                     :dependencies [[org.clojure/tools.nrepl "0.2.12"]]}
              :test {:ragtime {:database
-                              "jdbc:postgresql://localhost:5432/mpc_test?user=mpc_test&password=mpc_test"}}
+                              "jdbc:postgresql://localhost:5432/mpc?user=mpc&password=mpc"}}
              :uberjar {:aot :all}}
   :plugins [[lein-environ "1.0.0"]
             ; The lein-ring plugin allows us to easily start a development web

@@ -46,3 +46,6 @@
             (assoc val (record-attr->db-col k) v))
           {}
           record))
+
+(defn substring? [substring string]
+  (.contains string substring))

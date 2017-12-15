@@ -49,7 +49,7 @@
                              :candidate-ranker candidate-ranker}))
 
 ;; =============================================================================
-;; Tests
+;; Tests for get- and create- functions for all resources
 ;; =============================================================================
 
 (deftest create-get-phonologies
