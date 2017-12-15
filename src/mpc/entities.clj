@@ -1,7 +1,5 @@
-(ns mpc.entities)
-
-;(defn uuid [] (str (java.util.UUID/randomUUID)))
-(defn uuid [] (java.util.UUID/randomUUID))
+(ns mpc.entities
+  (:require [mpc.utils :as utils]))
 
 ;; A `Phonology` is a compiled foma FST as well as the (user-supplied) foma
 ;; script used to generate it.
@@ -14,7 +12,7 @@
                       compiled-script])
 
 (defn new-phonology []
-  (->Phonology (uuid) "" ""))
+  (->Phonology (utils/uuid) "" ""))
 
 ;; A `Morpphology` is a compiled foma FST as well as the word corpus, foma
 ;; script, and other parameters needed to generate it.
@@ -96,7 +94,7 @@
         id (:id entity-map)]
     (if id
       (map->constructor entity-map)
-      (map->constructor (assoc entity-map :id (uuid))))))
+      (map->constructor (assoc entity-map :id (utils/uuid))))))
 
 (def make-phonology (partial make-entity :phonology))
 (def make-morphology (partial make-entity :morphology))

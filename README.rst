@@ -139,3 +139,20 @@ Access Database via Clojure REPL and Korma
     mpc.core=> (korma.db/defdb db (korma.db/postgres {:db "mpc"
                                                       :user "mpc"
                                                       :password "mpc"}))
+
+
+cURL client examples
+================================================================================
+
+Create a phonology::
+
+    $ curl \
+    $     -H "Content-Type: application/json" \
+    $     -X POST \
+    $     -d "{\"script\": \"define phonology ...\"}" \
+    $     http://localhost:3000/phonologies
+
+Get all phonologies::
+
+    $ curl http://localhost:3000/phonologies | jq
+

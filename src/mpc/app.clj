@@ -3,102 +3,146 @@
   (:require [clojure.pprint :as pprint]
             [compojure.core :as cmpjr]
             [compojure.route :as route]
+            [inflections.core :as infl]
             [ring.middleware.json :refer [wrap-json-response
                                           wrap-json-body]]
             [ring.util.response :refer [response]]
             [mpc.db]
             [mpc.entities :as e]
-            ))
+            [mpc.utils :as utils]))
 
-(declare get-phonologies)
-(declare create-phonology)
-(declare get-phonology)
-(declare delete-phonology)
+;; ==============================================================================
+;; Get all resources functions
+;; ==============================================================================
 
-(defn get-phonologies [_]
+(defn get-resources [resource-kw _]
+  (let [resource-str (name resource-kw)
+        resource-str-pl (infl/plural resource-str)
+        rows-getter (->> resource-str-pl
+                         (str "get-")
+                         symbol
+                         (ns-resolve 'mpc.db))
+        rows-counter (->> resource-str-pl
+                          (str "count-")
+                          symbol
+                          (ns-resolve 'mpc.db))]
   {:status 200
-   :body {:count (mpc.db/count-phonologies)
-          :results (mpc.db/get-phonologies)}})
+   :body {:count (rows-counter)
+          :results (rows-getter)}}))
 
-(defn get-morphologies [_]
-  {:status 200
-   :body {:count (mpc.db/count-morphologies)
-          :results (mpc.db/get-morphologies)}})
+(def get-phonologies (partial get-resources :phonology))
+(def get-morphologies (partial get-resources :morphology))
+(def get-morphophonologies (partial get-resources :morphophonologies))
+(def get-candidate-rankers (partial get-resources :candidate-ranker))
+(def get-morphological-parsers (partial get-resources :morphological-parser))
 
-(defn get-morphophonologies [_]
-  {:status 200
-   :body {:count (mpc.db/count-morphophonologies)
-          :results (mpc.db/get-morphophonologies)}})
+;; ==============================================================================
+;; Get single resource functions
+;; ==============================================================================
 
-(defn get-candidate-rankers [_]
-  {:status 200
-   :body {:count (mpc.db/count-candidate-rankers)
-          :results (mpc.db/get-candidate-rankers)}})
+(defn get-resource [resource-kw {{:keys [id]} :params}]
+  (let [resource-str (name resource-kw)
+        row-getter (->> resource-str
+                        (str "get-")
+                        symbol
+                        (ns-resolve 'mpc.db))]
+    (-> id
+        utils/str->uuid
+        row-getter
+        response)))
 
-(defn get-morphological-parsers [_]
-  {:status 200
-   :body {:count (mpc.db/count-morphological-parsers)
-          :results (mpc.db/get-morphological-parsers)}})
+(def get-phonology (partial get-resource :phonology))
+(def get-morphology (partial get-resource :morphology))
+(def get-morphophonology (partial get-resource :morphophonology))
+(def get-candidate-ranker (partial get-resource :candidate-ranker))
+(def get-morphological-parser (partial get-resource :morphological-parser))
 
-(defn create-phonology [{phonology-data :body}]
-  (let [new-phonology (mpc.db/create-phonology
-                        (e/make-phonology phonology-data))]
+;; ==============================================================================
+;; Create resource functions
+;; ==============================================================================
+
+(defn create-resource [resource-kw {resource-data :body}]
+  (let [resource-str (name resource-kw)
+        resource-str-pl (infl/plural resource-str)
+        record-constructor (->> resource-str
+                                (str "make-")
+                                symbol
+                                (ns-resolve 'mpc.entities))
+        row-creator (->> resource-str
+                         (str "create-")
+                         symbol
+                         (ns-resolve 'mpc.db))
+        new-resource (-> resource-data
+                         record-constructor
+                         row-creator)]
      {:status 201
-      :headers {"Location" (str "/phonologies/" (:id new-phonology))}}))
+      :headers {"Location"
+                (format "/%s/%s" resource-str-pl (:id new-resource))}}))
+
+(def create-phonology (partial create-resource :phonology))
+(def create-morphology (partial create-resource :morphology))
+(def create-morphophonology (partial create-resource :morphophonology))
+(def create-candidate-ranker (partial create-resource :candidate-ranker))
+(def create-morphological-parser (partial create-resource :morphological-parser))
+
+;; ==============================================================================
+;; Routes
+;; ==============================================================================
 
 (cmpjr/defroutes app-routes
 
   (cmpjr/context "/phonologies" []
            (cmpjr/GET "/" [] get-phonologies)
            (cmpjr/POST "/" [] create-phonology)
-           ;(cmpjr/GET "/:id" [id] get-phonology)
+           (cmpjr/GET "/:id" [id] get-phonology)
            ;(cmpjr/DELETE "/:id" [id] delete-phonology)
            )
 
   (cmpjr/context "/morphologies" []
            (cmpjr/GET "/" [] get-morphologies)
-           ;(cmpjr/POST "/" [] create-morphology)
-           ;(cmpjr/GET "/:id" [id] get-morphology)
+           (cmpjr/POST "/" [] create-morphology)
+           (cmpjr/GET "/:id" [id] get-morphology)
            ;(cmpjr/DELETE "/:id" [id] delete-morphology)
            )
 
   (cmpjr/context "/morphophonologies" []
            (cmpjr/GET "/" [] get-morphophonologies)
-           ;(cmpjr/POST "/" [] create-morphophonology)
-           ;(cmpjr/GET "/:id" [id] get-morphophonology)
+           (cmpjr/POST "/" [] create-morphophonology)
+           (cmpjr/GET "/:id" [id] get-morphophonology)
            ;(cmpjr/DELETE "/:id" [id] delete-morphophonology)
            )
 
   (cmpjr/context "/candidaterankers" []
            (cmpjr/GET "/" [] get-candidate-rankers)
-           ;(cmpjr/POST "/" [] create-candidate-ranker)
-           ;(cmpjr/GET "/:id" [id] get-candidate-ranker)
+           (cmpjr/POST "/" [] create-candidate-ranker)
+           (cmpjr/GET "/:id" [id] get-candidate-ranker)
            ;(cmpjr/DELETE "/:id" [id] delete-candidate-ranker)
            )
 
   (cmpjr/context "/morphologicalparsers" []
            (cmpjr/GET "/" [] get-morphological-parsers)
-           ;(cmpjr/POST "/" [] create-morphological-parser)
-           ;(cmpjr/GET "/:id" [id] get-morphological-parser)
+           (cmpjr/POST "/" [] create-morphological-parser)
+           (cmpjr/GET "/:id" [id] get-morphological-parser)
            ;(cmpjr/DELETE "/:id" [id] delete-morphological-parser)
            )
 
   (route/not-found
     (response {:message "Page not found"})))
 
+;; ==============================================================================
+;; Custom middleware
+;; ==============================================================================
 
-; Behold, our middleware! Note that it's common to prefix our middleware name
-; with "wrap-", since it surrounds any routes an other middleware "inside"
 (defn wrap-log-request [handler]
-  (fn [request] ; return handler function
-    (pprint/pprint request) ; perform logging
-    (handler request))) ; pass the request through to the inner handler
+  (fn [request]
+    (pprint/pprint request)
+    (handler request)))
 
-; We can attach our middleware directly to the main application handler. All
-; requests/responses will be "filtered" through our logging handler.
+;; ==============================================================================
+;; App
+;; ==============================================================================
+
 (def app
   (-> app-routes
-    ;wrap-log-request
     wrap-json-response
-    (wrap-json-body {:keywords? true})
-    ))
+    (wrap-json-body {:keywords? true})))

@@ -13,6 +13,7 @@
                  [environ "1.0.0"]
                  [com.stuartsierra/component "0.3.2"]
                  [hiccup "1.0.5"]
+                 [inflections "0.13.0"]
                  [korma "0.4.3"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms

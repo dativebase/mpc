@@ -7,8 +7,7 @@
             [mpc.app :refer [app]]
             [mpc.db :as db]
             [mpc.test-core :refer [with-rollback]]
-            [mpc.utils :refer [substring?]]
-            ))
+            [mpc.utils :refer [str->uuid substring?]]))
 
 ; WIll be rebound in test
 (def ^{:dynamic true} *session-id* nil)
@@ -65,14 +64,49 @@
 )
 
 (def phonology-script "define phonology a -> b | c _ d ;")
+(def morphology-corpus '("in-perfect" "un-break-able"))
+(def morphology-script-format "lexc")
 
 (deftest creating-phonology
-  (testing "POST /phonology"
+  (testing "POST /phonologies"
     (let [phonology-count (db/count-phonologies)
           response (app (-> (mock/request :post "/phonologies")
                             (mock/body (generate-string {:script phonology-script}))
                             (mock/content-type "application/json")
-                            (mock/header "Accept" "application/json")))]
+                            (mock/header "Accept" "application/json")))
+          resource-location (get-in response [:headers "Location"])]
       (is (= (:status response) 201))
-      (is (substring? "/phonologies/" (get-in response [:headers "Location"])))
-      (is (= (inc phonology-count) (db/count-phonologies))))))
+      (is (substring? "/phonologies/" resource-location))
+      (is (= (inc phonology-count) (db/count-phonologies)))
+      (let [response (app (-> (mock/request :get resource-location)
+                              (mock/header "Accept" "application/json")))
+            phonology-map (parse-string (:body response))
+            phonology-id (get phonology-map "id")]
+        (is (map? phonology-map))
+        (is (= phonology-script (get phonology-map "script")))
+        (is (instance? java.util.UUID (str->uuid phonology-id)))
+        (is (substring? phonology-id resource-location))))))
+
+(deftest creating-morphology
+  (testing "POST /morphologies"
+    (let [morphology-count (db/count-morphologies)
+          response (app (-> (mock/request :post "/morphologies")
+                            (mock/body (generate-string
+                                         {:corpus morphology-corpus
+                                          :script-format
+                                          morphology-script-format}))
+                            (mock/content-type "application/json")
+                            (mock/header "Accept" "application/json")))
+          resource-location (get-in response [:headers "Location"])]
+      (is (= (:status response) 201))
+      (is (substring? "/morphologies/" resource-location))
+      (is (= (inc morphology-count) (db/count-morphologies)))
+      (let [response (app (-> (mock/request :get resource-location)
+                              (mock/header "Accept" "application/json")))
+            morphology-map (parse-string (:body response))
+            morphology-id (get morphology-map "id")]
+        (is (map? morphology-map))
+        (is (= morphology-corpus (get morphology-map "corpus")))
+        (is (= morphology-script-format (get morphology-map "script-format")))
+        (is (instance? java.util.UUID (str->uuid morphology-id)))
+        (is (substring? morphology-id resource-location))))))

@@ -49,3 +49,8 @@
 
 (defn substring? [substring string]
   (.contains string substring))
+
+(defn uuid [] (java.util.UUID/randomUUID))
+
+(defn str->uuid [string]
+  (java.util.UUID/fromString string))
