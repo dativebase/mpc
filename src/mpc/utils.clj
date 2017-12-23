@@ -54,3 +54,8 @@
 
 (defn str->uuid [string]
   (java.util.UUID/fromString string))
+
+
+(defn earlier-than? [d1 d2] (= -1 (compare d1 d2)))
+
+(defn later-than? [d1 d2] (= 0 (compare d1 d2)))

@@ -143,6 +143,9 @@ Describe the ``phonology`` table::
     Referenced by:
         TABLE "morphophonology" CONSTRAINT "morphophonology_phonology_id_fkey" FOREIGN KEY (phonology_id) REFERENCES phonology(id)
 
+The PostgreSQL log file on a Homebrew Mac installation is at
+/usr/local/var/log/postgres.log by default.
+
 
 Access Database via Clojure REPL and Korma
 --------------------------------------------------------------------------------
@@ -171,3 +174,8 @@ Get all phonologies::
 
     $ curl http://localhost:3000/phonologies | jq
 
+
+REDIS Task Queue
+================================================================================
+
+- https://github.com/ptaoussanis/carmine#message-queue

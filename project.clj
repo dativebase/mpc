@@ -14,12 +14,13 @@
                  [com.stuartsierra/component "0.3.2"]
                  [hiccup "1.0.5"]
                  [inflections "0.13.0"]
-                 [korma "0.4.3"]
+                 [com.layerware/hugsql "0.4.8"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
                  [org.postgresql/postgresql "9.4.1208"]
+                 [postgre-types "0.0.4"]
                  [ragtime "0.7.2"]
                  [ring "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
