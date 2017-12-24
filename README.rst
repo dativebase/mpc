@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/dativebase/mpc.svg?branch=master
+    :target: https://travis-ci.org/dativebase/mpc
+
 ================================================================================
   MPC: Morphological Parser Creator
 ================================================================================
@@ -5,20 +8,6 @@
 The MPC is the Morphological Parser Creator, a web service that can create
 morphological parsers using finite-state transducers (FSTs) and N-gram language
 models (LMs).
-
-
-Creating a Morphophonology
-================================================================================
-
-JSON passed over HTTP::
-
-    {"phonology-id": "28e4406c-a325-496e-967c-29e41f94a66f"
-     "morphology-id": "49b04725-dcc0-45bc-b317-8e89896593bc"}
-
-Clojure Map created by calling ``(parse-string json-string true)``::
-
-    {:phonology-id: "28e4406c-a325-496e-967c-29e41f94a66f"
-     :morphology-id: "49b04725-dcc0-45bc-b317-8e89896593bc"}
 
 
 
